@@ -1,9 +1,11 @@
 ﻿using FlightBooker.Booking.API.Models;
+using FlightBooker.Messages;
+using MassTransit;
 using System.Text.Json;
 
 namespace FlightBooker.Booking.API.Services
 {
-    public class BookingService(IHttpClientFactory httpClientFactory)
+    public class BookingService(IHttpClientFactory httpClientFactory, IPublishEndpoint publishEndpoint)
     {
         public async Task<bool> CreateBookingAsync(CreateBookingDto bookingRequest)
         {
@@ -31,7 +33,16 @@ namespace FlightBooker.Booking.API.Services
                 // Şimdilik sadece başarılı olduğunu konsola yazdırıyoruz.
                 Console.WriteLine($"Rezervasyon oluşturuldu: Yolcu: {bookingRequest.PassengerName}, Uçuş ID: {bookingRequest.FlightId}, Koltuk: {bookingRequest.SeatCount}");
 
+
+                var bookingId = Guid.NewGuid(); // Gerçekte veritabanından gelen ID olur
+                // Olayı yayınla
+                await publishEndpoint.Publish(new BookingCreatedEvent(
+                    bookingId,
+                    bookingRequest.PassengerName,
+                    "test@example.com")); // E-posta adresini şimdilik sabit verdik
+
                 return true;
+
             }
             catch (Exception ex)
             {

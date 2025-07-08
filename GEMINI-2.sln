@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.13.35931.197 d17.13
+VisualStudioVersion = 17.13.35931.197
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}"
 	ProjectSection(SolutionItems) = preProject
@@ -15,6 +15,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlightBooker.Search.API", "src\FlightBooker.Search.API\FlightBooker.Search.API.csproj", "{86F967D4-2DF3-4ABC-8A4D-7BABFAC15CF7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlightBooker.Booking.API", "src\FlightBooker.Booking.API\FlightBooker.Booking.API.csproj", "{F309B447-B1B9-492B-B49A-82ADBCBAF169}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlightBooker.Messages", "src\FlightBooker.Messages\FlightBooker.Messages.csproj", "{4B5F12D8-277F-4694-9DBA-7EB3CF51F5F3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlightBooker.Notification.Service", "src\FlightBooker.Notification.Service\FlightBooker.Notification.Service.csproj", "{F35F1DCD-0375-480D-83AF-EB7B33BFEDAD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -34,6 +38,14 @@ Global
 		{F309B447-B1B9-492B-B49A-82ADBCBAF169}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F309B447-B1B9-492B-B49A-82ADBCBAF169}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F309B447-B1B9-492B-B49A-82ADBCBAF169}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4B5F12D8-277F-4694-9DBA-7EB3CF51F5F3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4B5F12D8-277F-4694-9DBA-7EB3CF51F5F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4B5F12D8-277F-4694-9DBA-7EB3CF51F5F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4B5F12D8-277F-4694-9DBA-7EB3CF51F5F3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F35F1DCD-0375-480D-83AF-EB7B33BFEDAD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F35F1DCD-0375-480D-83AF-EB7B33BFEDAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F35F1DCD-0375-480D-83AF-EB7B33BFEDAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F35F1DCD-0375-480D-83AF-EB7B33BFEDAD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -42,6 +54,8 @@ Global
 		{85B04952-455A-402A-A54A-E3D2273A91C8} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{86F967D4-2DF3-4ABC-8A4D-7BABFAC15CF7} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{F309B447-B1B9-492B-B49A-82ADBCBAF169} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{4B5F12D8-277F-4694-9DBA-7EB3CF51F5F3} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{F35F1DCD-0375-480D-83AF-EB7B33BFEDAD} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {692EB334-7F32-496D-BAA2-8DE7C82FC525}

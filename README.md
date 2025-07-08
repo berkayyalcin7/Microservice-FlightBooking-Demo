@@ -21,4 +21,22 @@ Sistemin bu ilk aþamasýnda, mikroservis mimarisinin temelini oluþturan **API Gat
 
 - **Kullanýlan Teknoloji: YARP (Yet Another Reverse Proxy)**
   API Gateway implementasyonu için Microsoft tarafýndan geliþtirilen, 
-- .NET ile tam uyumlu, yüksek performanslý ve esnek bir ters proxy kütüphanesi olan **YARP** kullanýlmýþtýr. Yönlendirme kurallarý (`Routes`) ve hedef servis gruplarý (`Clusters`), `appsettings.json` dosyasý üzerinden kolayca yapýlandýrýlmýþtýr.
+- .NET ile tam uyumlu, yüksek performanslý ve esnek bir ters proxy kütüphanesi olan **YARP** kullanýlmýþtýr. 
+- Yönlendirme kurallarý (`Routes`) ve hedef servis gruplarý (`Clusters`), `appsettings.json` 
+- dosyasý üzerinden kolayca yapýlandýrýlmýþtýr.
+
+### Ders 2 & 3: Senkron Servisler Arasý Ýletiþim (HTTP)
+
+Konsept: Bir mikroservisin, bir iþlemi tamamlamak için baþka bir mikroservisten anlýk olarak veri beklemesi senaryosudur.
+
+Uygulanan Senaryo:
+
+Booking.API, bir rezervasyon isteði aldýðýnda, iþlemi onaylamadan önce Search.API'ye doðrudan bir HTTP isteði göndererek ilgili uçuþun var olup olmadýðýný senkron olarak doðrular.
+
+Kullanýlan Teknoloji: IHttpClientFactory
+
+.NET'te servisler arasý HTTP istekleri yapmanýn modern ve en doðru yoludur. HttpClient nesnelerinin ömrünü ve baðlantýlarýný verimli bir þekilde yönetir.
+
+Dezavantaj:
+
+Bu yaklaþým, servisler arasýnda sýký bir anlýk baðýmlýlýk (tight coupling) oluþturur. Search.API ulaþýlamaz olduðunda, Booking.API'nin yeni rezervasyon yapma yeteneði de doðrudan etkilenir.
