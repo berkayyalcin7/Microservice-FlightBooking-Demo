@@ -1,11 +1,13 @@
 ﻿using FlightBooker.Booking.API.Models;
 using FlightBooker.Booking.API.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FlightBooker.Booking.API.Controllers
 {
     [ApiController]
+    [Authorize] // BU SATIRI EKLEYİN
     [Route("api/[controller]")]
     public class BookingsController(BookingService bookingService) : ControllerBase
     {

@@ -39,4 +39,25 @@ Kullanýlan Teknoloji: IHttpClientFactory
 
 Dezavantaj:
 
-Bu yaklaþým, servisler arasýnda sýký bir anlýk baðýmlýlýk (tight coupling) oluþturur. Search.API ulaþýlamaz olduðunda, Booking.API'nin yeni rezervasyon yapma yeteneði de doðrudan etkilenir.
+Bu yaklaþým, servisler arasýnda sýký bir anlýk baðýmlýlýk (tight coupling) oluþturur. 
+Search.API ulaþýlamaz olduðunda, Booking.API'nin yeni rezervasyon yapma yeteneði de doðrudan etkilenir.
+
+### Ders 4: Asenkron Ýletiþim ve Olay Tabanlý Mimari
+
+Konsept: Senkron iletiþimin getirdiði kýrýlganlýðý azaltmak ve servisleri birbirinden baðýmsýzlaþtýrmak için 
+Olay Tabanlý Mimari (Event-Driven Architecture) deseni uygulanmýþtýr. Servisler birbirine doðrudan komut vermek yerine, bir olay olduðunda bunu etrafa duyurur ve ilgilenen diðer servisler bu olayý dinler.
+
+Uygulanan Senaryo:
+
+Booking.API, bir rezervasyon oluþturduktan sonra, 
+bir BookingCreatedEvent (Rezervasyon Oluþturuldu Olayý) mesajý yayýnlar.
+
+Notification.Service adýnda yeni bir arka plan servisi, 
+bu olaylarý dinleyerek kullanýcýya onay e-postasý gönderme gibi ikincil iþlemleri, diðer servisleri bloke etmeden, kendi zamanýnda gerçekleþtirir.
+
+Kullanýlan Teknolojiler:
+
+RabbitMQ: Servisler arasýnda "postane" görevi gören, endüstri standardý bir mesajlaþma kuyruðu (message broker) sistemidir.
+
+MassTransit: RabbitMQ gibi sistemlerle çalýþmayý 
+.NET üzerinde son derece kolaylaþtýran, hata yönetimi ve yapýlandýrma gibi birçok detayý otomatikleþtiren üst düzey bir soyutlama kütüphanesidir.
