@@ -25,39 +25,18 @@ Sistemin bu ilk aþamasýnda, mikroservis mimarisinin temelini oluþturan **API Gat
 - Yönlendirme kurallarý (`Routes`) ve hedef servis gruplarý (`Clusters`), `appsettings.json` 
 - dosyasý üzerinden kolayca yapýlandýrýlmýþtýr.
 
-### Ders 2 & 3: Senkron Servisler Arasý Ýletiþim (HTTP)
-
-Konsept: Bir mikroservisin, bir iþlemi tamamlamak için baþka bir mikroservisten anlýk olarak veri beklemesi senaryosudur.
-
-Uygulanan Senaryo:
-
-Booking.API, bir rezervasyon isteði aldýðýnda, iþlemi onaylamadan önce Search.API'ye doðrudan bir HTTP isteði göndererek ilgili uçuþun var olup olmadýðýný senkron olarak doðrular.
-
-Kullanýlan Teknoloji: IHttpClientFactory
-
-.NET'te servisler arasý HTTP istekleri yapmanýn modern ve en doðru yoludur. HttpClient nesnelerinin ömrünü ve baðlantýlarýný verimli bir þekilde yönetir.
-
-Dezavantaj:
-
-Bu yaklaþým, servisler arasýnda sýký bir anlýk baðýmlýlýk (tight coupling) oluþturur. 
-Search.API ulaþýlamaz olduðunda, Booking.API'nin yeni rezervasyon yapma yeteneði de doðrudan etkilenir.
+### Ders 2 & 3: Senkron Servisler Arasý Ýletiþim
+- **Senkron Ýletiþim:** Bir servisin, bir iþlemi tamamlamak için baþka bir servisten anlýk olarak cevap beklemesi senaryosu (`Booking.API`'nin `Search.API`'den uçuþ doðrulamasý yapmasý) iþlendi.
+- **IHttpClientFactory:** .NET'te servisler arasý HTTP istekleri yapmanýn modern ve en doðru yolu olan `IHttpClientFactory` kullanýlarak servisler arasý güvenli ve verimli bir iletiþim saðlandý.
 
 ### Ders 4: Asenkron Ýletiþim ve Olay Tabanlý Mimari
+- **Olay Tabanlý Mimari (EDA):** Servisler arasý sýký baðýmlýlýðý azaltmak için olay tabanlý mimariye geçiþ yapýldý. `Booking.API` artýk bir rezervasyon sonrasý sadece bir "olay" yayýnlayarak diðer servisleri bloke etmeden iþine devam eder.
+- **RabbitMQ:** Servisler arasýnda "postane" görevi gören, endüstri standardý bir mesajlaþma kuyruðu (message broker) sistemi olarak kullanýldý.
+- **MassTransit:** RabbitMQ ile .NET arasýndaki entegrasyonu son derece basitleþtiren, hata yönetimi gibi birçok profesyonel özelliði barýndýran üst düzey bir soyutlama kütüphanesi entegre edildi.
 
-Konsept: Senkron iletiþimin getirdiði kýrýlganlýðý azaltmak ve servisleri birbirinden baðýmsýzlaþtýrmak için 
-Olay Tabanlý Mimari (Event-Driven Architecture) deseni uygulanmýþtýr. Servisler birbirine doðrudan komut vermek yerine, bir olay olduðunda bunu etrafa duyurur ve ilgilenen diðer servisler bu olayý dinler.
 
-Uygulanan Senaryo:
-
-Booking.API, bir rezervasyon oluþturduktan sonra, 
-bir BookingCreatedEvent (Rezervasyon Oluþturuldu Olayý) mesajý yayýnlar.
-
-Notification.Service adýnda yeni bir arka plan servisi, 
-bu olaylarý dinleyerek kullanýcýya onay e-postasý gönderme gibi ikincil iþlemleri, diðer servisleri bloke etmeden, kendi zamanýnda gerçekleþtirir.
-
-Kullanýlan Teknolojiler:
-
-RabbitMQ: Servisler arasýnda "postane" görevi gören, endüstri standardý bir mesajlaþma kuyruðu (message broker) sistemidir.
-
-MassTransit: RabbitMQ gibi sistemlerle çalýþmayý 
-.NET üzerinde son derece kolaylaþtýran, hata yönetimi ve yapýlandýrma gibi birçok detayý otomatikleþtiren üst düzey bir soyutlama kütüphanesidir.
+### Ders 5: Merkezi Kimlik Doðrulama ve Güvenlik
+- **Merkezi Kimlik Servisi:** Tüm kullanýcý doðrulama ve yetkilendirme iþlemlerini yöneten, tek sorumlu bir `Identity.API` servisi oluþturuldu.
+- **JWT (JSON Web Token):** Güvenli iletiþim için standart olan JWT'ler kullanýldý. `Identity.API`, baþarýlý giriþ denemelerinde istemcilere imzalý bir `accessToken` üretir.
+- **Paylaþýlan Gizli Anahtar (Shared Secret):** `Identity.API`'nin token'ý imzalarken kullandýðý gizli anahtarýn aynýsý, `Booking.API` gibi korumalý servisler tarafýndan token'ý doðrulamak için kullanýldý. Bu güven iliþkisi, `appsettings.json` dosyalarý üzerinden yönetildi.
+- **Manuel JWT Üretimi/Doðrulamasý:** `.NET 8`'in `MapIdentityApi` metodunun mikroservis senaryolarýndaki zorluklarý nedeniyle, token üretimi ve doðrulamasý standart JWT kütüphaneleri kullanýlarak manuel ve daha net bir þekilde yapýlandýrýldý.
