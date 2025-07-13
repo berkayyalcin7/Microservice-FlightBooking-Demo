@@ -40,3 +40,17 @@ Sistemin bu ilk aþamasýnda, mikroservis mimarisinin temelini oluþturan **API Gat
 - **JWT (JSON Web Token):** Güvenli iletiþim için standart olan JWT'ler kullanýldý. `Identity.API`, baþarýlý giriþ denemelerinde istemcilere imzalý bir `accessToken` üretir.
 - **Paylaþýlan Gizli Anahtar (Shared Secret):** `Identity.API`'nin token'ý imzalarken kullandýðý gizli anahtarýn aynýsý, `Booking.API` gibi korumalý servisler tarafýndan token'ý doðrulamak için kullanýldý. Bu güven iliþkisi, `appsettings.json` dosyalarý üzerinden yönetildi.
 - **Manuel JWT Üretimi/Doðrulamasý:** `.NET 8`'in `MapIdentityApi` metodunun mikroservis senaryolarýndaki zorluklarý nedeniyle, token üretimi ve doðrulamasý standart JWT kütüphaneleri kullanýlarak manuel ve daha net bir þekilde yapýlandýrýldý.
+
+### Ders 6: Sistemin Dayanýklýlýðý ve Hata Yönetimi (Polly)
+Daðýtýk sistemler doðalarý gereði kýrýlgandýr; aðlar yavaþlayabilir, servisler anlýk olarak cevap vermeyebilir. 
+Bu derste, sistemimizi bu tür geçici hatalara karþý daha dirençli (resilient) hale getirmek için **Polly** kütüphanesi kullanýlmýþtýr.
+
+- **Konsept:** Polly, .NET için geliþtirilmiþ bir dayanýklýlýk ve geçici hata yönetimi kütüphanesidir. 
+- Baþarýsýz olabilecek operasyonlarý (örneðin HTTP istekleri), önceden tanýmlanmýþ sigorta poliçeleri gibi davranan politikalarla sarmalar.
+- **Uygulanan Desenler:**
+    - **Retry (Tekrar Deneme):** `Booking.API`'nin `Search.API`'ye yaptýðý istek anlýk bir hatayla baþarýsýz olduðunda, 
+    - sistem hemen pes etmek yerine, isteði belirli aralýklarla birkaç kez daha dener.
+    - **Circuit Breaker (Devre Kesici):** Eðer `Search.API` sürekli olarak hata döndürüyorsa, 
+    - `Booking.API` bir "sigorta attýrýr" gibi davranarak bir süreliðine o servise istek göndermeyi tamamen durdurur. 
+    - Bu, hem `Booking.API`'nin kaynaklarýný tüketmesini engeller hem de sorunlu olan 
+    - `Search.API`'nin toparlanmasý için ona zaman tanýr. Bu desen, bir servisteki hatanýn tüm sisteme yayýlmasýný (cascading failure) önler.

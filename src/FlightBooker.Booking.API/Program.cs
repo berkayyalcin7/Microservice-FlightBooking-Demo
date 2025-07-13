@@ -1,6 +1,8 @@
 using FlightBooker.Booking.API.Services;
 using MassTransit;
 using Microsoft.IdentityModel.Tokens;
+using Polly.Extensions.Http;
+using Polly;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -28,10 +30,16 @@ builder.Services.AddAuthentication("Bearer")
 
 builder.Services.AddAuthorization();
 
+
 builder.Services.AddHttpClient("SearchService", client =>
 {
     client.BaseAddress = new Uri(builder.Configuration["ServiceUrls:SearchAPI"]);
-});
+})
+// GEÇÝCÝ HTTP HATALARINI YAKALAYACAK BÝR POLÝTÝKA EKLE
+.AddPolicyHandler(GetRetryPolicy())
+.AddPolicyHandler(GetCircuitBreakerPolicy());
+
+
 
 builder.Services.AddScoped<BookingService>();
 
@@ -70,3 +78,40 @@ app.MapControllers();
 
 
 app.Run();
+
+
+// 1. TEKRAR DENEME POLÝTÝKASI
+static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()
+{
+    // Bir istek baþarýsýz olduðunda (örn: 5XX, 408), 3 kez tekrar dene.
+    // Her deneme arasýnda üssel olarak artan bir süre bekle (1s, 2s, 4s).
+    return HttpPolicyExtensions
+        .HandleTransientHttpError()
+        .OrResult(msg => msg.StatusCode == System.Net.HttpStatusCode.NotFound) // 404'ü de geçici hata say
+        .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
+            onRetry: (outcome, timespan, retryAttempt, context) =>
+            {
+                // Her tekrar denemede konsola log bas
+                Console.WriteLine($"--> Search.API'ye istek baþarýsýz oldu. Tekrar deneniyor... Deneme: {retryAttempt}, Bekleme: {timespan.TotalSeconds}s");
+            });
+}
+
+// 2. DEVRE KESÝCÝ POLÝTÝKASI
+static IAsyncPolicy<HttpResponseMessage> GetCircuitBreakerPolicy()
+{
+    // Eðer ardýþýk 5 istek baþarýsýz olursa, devreyi 30 saniyeliðine kes.
+    // Bu süre boyunca hiçbir istek gönderilmez, anýnda hata dönülür.
+    return HttpPolicyExtensions
+        .HandleTransientHttpError()
+        .CircuitBreakerAsync(5, TimeSpan.FromSeconds(30),
+            onBreak: (result, timespan) =>
+            {
+                Console.WriteLine("--> Devre kesici açýldý (OnBreak)! 30 saniye boyunca istek gönderilmeyecek.");
+            },
+            onReset: () =>
+            {
+                Console.WriteLine("--> Devre kesici kapandý (OnReset). Ýstekler tekrar gönderiliyor.");
+            });
+}
+
+
