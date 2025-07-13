@@ -1,8 +1,31 @@
 using FlightBooker.Identity.API.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
+using Serilog;
+
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(new ConfigurationBuilder()
+        .AddJsonFile("appsettings.json")
+        .Build())
+    .CreateLogger();
+
 
 var builder = WebApplication.CreateBuilder(args);
+
+// .NET'in varsayýlan loglamasýný kaldýrýp yerine Serilog'u ekle
+builder.Host.UseSerilog();
+
+// OpenTelemetry'yi ekle ve yapýlandýr
+builder.Services.AddOpenTelemetry()
+    .ConfigureResource(resource => resource.AddService(builder.Environment.ApplicationName))
+    .WithTracing(tracing => tracing
+        .AddAspNetCoreInstrumentation() // Gelen HTTP isteklerini izler
+        .AddHttpClientInstrumentation()   // Giden HTTP isteklerini izler
+        .AddConsoleExporter());          // Ýzleri konsola basar
+
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
