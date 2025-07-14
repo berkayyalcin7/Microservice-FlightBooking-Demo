@@ -7,6 +7,10 @@ using System.Text;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Serilog;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using HealthChecks.UI.Client;
+using RabbitMQ.Client;
 
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(new ConfigurationBuilder()
@@ -50,6 +54,16 @@ builder.Services.AddAuthentication("Bearer")
     });
 
 builder.Services.AddAuthorization();
+
+// Son versiyon 9.0 güncellemesi ile kullaným
+builder.Services.AddSingleton<IConnection>(sp =>
+{
+    var factory = new ConnectionFactory
+    {
+        Uri = new Uri("amqp://guest:guest@localhost:5672"),
+    };
+    return factory.CreateConnectionAsync().GetAwaiter().GetResult();
+}).AddHealthChecks().AddRabbitMQ();
 
 
 builder.Services.AddHttpClient("SearchService", client =>
@@ -96,7 +110,11 @@ app.UseAuthorization();
 // 3. EN ÖNEMLÝ SATIR: Gelen istekleri Controller'lara yönlendiren haritalamayý yapar.
 app.MapControllers();
 
-
+app.MapHealthChecks("/health", new HealthCheckOptions
+{
+    Predicate = _ => true,
+    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse // Cevabý detaylý JSON olarak formatla
+});
 
 app.Run();
 

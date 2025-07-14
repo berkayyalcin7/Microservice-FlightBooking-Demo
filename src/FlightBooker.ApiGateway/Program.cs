@@ -1,7 +1,9 @@
 
+using Microsoft.AspNetCore.RateLimiting;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Serilog;
+using System.Threading.RateLimiting;
 
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(new ConfigurationBuilder()
@@ -27,6 +29,22 @@ builder.Services.AddOpenTelemetry()
 
 builder.Services.AddControllers();
 
+// --- YENÝ EKLENEN KOD BLOKLARI ---
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+    options.AddFixedWindowLimiter(policyName: "fixed", fixedWindow =>
+    {
+        // Politika: Her 10 saniyede en fazla 10 istek kabul et.
+        fixedWindow.PermitLimit = 5;
+        fixedWindow.Window = TimeSpan.FromSeconds(10);
+        //fixedWindow.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        //fixedWindow.QueueLimit = 5; // Sýnýrý aþan 5 isteði sýraya al, fazlasýný reddet.
+    });
+});
+
+
 builder.Services.AddReverseProxy()
     .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
 
@@ -36,9 +54,10 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+app.UseRateLimiter();
 
 // Gelen istekleri YARP'ýn yönlendirme haritasýna gönder
-app.MapReverseProxy();
+app.MapReverseProxy().RequireRateLimiting("fixed");
 
 app.UseHttpsRedirection();
 app.UseAuthorization();

@@ -59,6 +59,10 @@ Bu derste, sistemimizi bu tür geçici hatalara karþý daha dirençli (resilient) ha
 ### Ders 7 & 8: Gözlemlenebilirlik (Serilog & OpenTelemetry)
 Daðýtýk bir sistemde "içeride neler oluyor?" sorusuna cevap verebilmek için gözlemlenebilirlik altyapýsý kurulmuþtur. Bu, sistemin bir "kara kutu" olmaktan çýkýp, iç iþleyiþinin þeffaf bir þekilde izlenebildiði bir yapýya dönüþmesini saðlar.
 
-- **Yapýsal Loglama (Serilog):** Tüm servisler, loglarýný düz metin yerine `{"TraceId": "...", "Message": "..."}` gibi aranabilir ve filtrelenebilir JSON formatýnda üretecek þekilde **Serilog** ile yapýlandýrýlmýþtýr.
-- **Merkezi Loglama (Seq):** `Search.API` servisi, ürettiði tüm yapýsal loglarý, bu iþ için özel olarak tasarlanmýþ olan **Seq** log sunucusuna göndermektedir. Bu, tüm loglarýn tek bir yerden, kullanýcý dostu bir arayüzle analiz edilmesini saðlar.
-- **Daðýtýk Ýzleme (OpenTelemetry):** Sisteme giren her isteðe benzersiz bir "Ýzleme Numarasý" (`TraceId`) atanmasý için **OpenTelemetry** standardý entegre edilmiþtir. Bu `TraceId`, isteðin uðradýðý tüm mikroservislere taþýnýr. Bu sayede, tek bir kullanýcý iþleminin tüm sistemdeki yolculuðu baþtan sona izlenebilir ve hata ayýklama süreci dramatik ölçüde kolaylaþýr.
+- **Yapýsal Loglama (Serilog):** Tüm servisler, loglarýný düz metin yerine `{"TraceId": "...", "Message": "..."}` 
+- gibi aranabilir ve filtrelenebilir JSON formatýnda üretecek þekilde **Serilog** ile yapýlandýrýlmýþtýr.
+- **Merkezi Loglama (Seq):** `Search.API` servisi, ürettiði tüm yapýsal loglarý, bu iþ için özel olarak 
+- tasarlanmýþ olan **Seq** log sunucusuna göndermektedir. Bu, tüm loglarýn tek bir yerden, kullanýcý dostu bir arayüzle analiz edilmesini saðlar.
+- **Daðýtýk Ýzleme (OpenTelemetry):** Sisteme giren her isteðe benzersiz bir "Ýzleme Numarasý" (`TraceId`) 
+- atanmasý için **OpenTelemetry** standardý entegre edilmiþtir. Bu `TraceId`, isteðin uðradýðý tüm mikroservislere taþýnýr. 
+- Bu sayede, tek bir kullanýcý iþleminin tüm sistemdeki yolculuðu baþtan sona izlenebilir ve hata ayýklama süreci dramatik ölçüde kolaylaþýr.
