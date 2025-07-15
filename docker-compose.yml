@@ -1,0 +1,94 @@
+# Konum: Projenizin ana dizini / docker-compose.yml
+
+version: '3.8'
+
+services:
+  # 3. Parti Servisler
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: flightbooker-rabbit
+    ports:
+      - "5672:5672"   # AMQP portu (servislerin kullanacağı)
+      - "15672:15672" # Yönetim arayüzü portu
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  seq:
+    image: datalust/seq:latest
+    container_name: flightbooker-seq
+    ports:
+      - "8081:80"     # Web arayüzü portu
+      - "5341:5341"   # Veri toplama (ingestion) portu
+    environment:
+      - ACCEPT_EULA=Y
+      - SEQ_FIRSTRUN_ADMINPASSWORD=YourStrongPassword123! # Şifrenizi belirleyin
+
+  sql-server:
+    image: mcr.microsoft.com/mssql/server:2022-latest # Microsoft'un resmi SQL Server imajı
+    container_name: flightbooker-sql
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=Your_Very_Strong_Password123! 
+    ports:
+      - "1433:1433" # Dışarıdan veritabanına erişmek isterseniz (opsiyonel)
+
+  # Kendi .NET Servislerimiz
+  identity-api:
+    image: flightbooker-identity-api
+    build:
+      context: .
+      dockerfile: src/FlightBooker.Identity.API/Dockerfile
+    ports:
+      - "8002:8080"
+    depends_on: # Bu bölümü ekleyin
+      sql-server:
+        condition: service_started # Veritabanı konteyneri başladıktan sonra başla
+      
+  search-api:
+    image: flightbooker-search-api
+    build:
+      context: .
+      dockerfile: src/FlightBooker.Search.API/Dockerfile
+    ports:
+      - "8001:8080"
+
+  booking-api:
+    image: flightbooker-booking-api
+    build:
+      context: .
+      dockerfile: src/FlightBooker.Booking.API/Dockerfile
+    ports:
+      - "8003:8080"
+    depends_on:
+      search-api:
+        condition: service_started
+      identity-api:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+
+  notification-service:
+    image: flightbooker-notification-service
+    build:
+      context: .
+      dockerfile: src/FlightBooker.Notification.Service/Dockerfile
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  # API Gateway en son
+  apigateway:
+    image: flightbooker-apigateway
+    build:
+      context: .
+      dockerfile: src/FlightBooker.ApiGateway/Dockerfile
+    ports:
+      - "8100:8080" # Sistemin ana giriş kapısı
+    depends_on:
+      - search-api
+      - booking-api
+      - identity-api

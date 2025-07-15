@@ -60,7 +60,8 @@ builder.Services.AddSingleton<IConnection>(sp =>
 {
     var factory = new ConnectionFactory
     {
-        Uri = new Uri("amqp://guest:guest@localhost:5672"),
+        //Uri = new Uri("amqp://guest:guest@localhost:5672"),
+        Uri=new Uri("amqp://guest:guest@rabbitmq:5672"),
     };
     return factory.CreateConnectionAsync().GetAwaiter().GetResult();
 }).AddHealthChecks().AddRabbitMQ();
@@ -80,11 +81,24 @@ builder.Services.AddScoped<BookingService>();
 
 // MassTransit yapýlandýrmasý.
 builder.Services.AddMassTransit(config => {
+
+    // BU YAPILANDIRMA NORMAL IIS DE ÇALIÞAN LOCALIMIZ
+
+    //config.UsingRabbitMq((ctx, cfg) => {
+    //    cfg.Host("localhost", "/", h => {
+    //        h.Username("guest");
+    //        h.Password("guest");
+    //    });
+    //});
+
+    // DOCKER ÝÇÝN YAPILANDIRMAMIZ
+
     config.UsingRabbitMq((ctx, cfg) => {
-        cfg.Host("localhost", "/", h => {
-            h.Username("guest");
-            h.Password("guest");
-        });
+        // appsettings.json dosyasýndaki "MassTransit" connection string'ini kullan
+        cfg.Host(builder.Configuration.GetConnectionString("MassTransit"));
+
+        // Consumer için kuyruk ayarlarýný yap
+        cfg.ConfigureEndpoints(ctx);
     });
 });
 

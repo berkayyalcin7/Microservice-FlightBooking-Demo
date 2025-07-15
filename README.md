@@ -66,3 +66,14 @@ Daðýtýk bir sistemde "içeride neler oluyor?" sorusuna cevap verebilmek için gözl
 - **Daðýtýk Ýzleme (OpenTelemetry):** Sisteme giren her isteðe benzersiz bir "Ýzleme Numarasý" (`TraceId`) 
 - atanmasý için **OpenTelemetry** standardý entegre edilmiþtir. Bu `TraceId`, isteðin uðradýðý tüm mikroservislere taþýnýr. 
 - Bu sayede, tek bir kullanýcý iþleminin tüm sistemdeki yolculuðu baþtan sona izlenebilir ve hata ayýklama süreci dramatik ölçüde kolaylaþýr.
+
+
+### Ders 9: Üretime Hazýrlýk - Health Checks ve Rate Limiting
+Bu derste, sistemin sadece çalýþýr durumda deðil, ayný zamanda "saðlýklý" ve "sürdürülebilir" olduðundan emin olmak için iki kritik desen uygulanmýþtýr.
+
+- **Health Checks (Saðlýk Kontrolleri):** Mikroservislerin, dýþ dünyaya kendi saðlýk durumlarýný bildiren bir `/health` endpoint'i sunmasý saðlanmýþtýr. 
+- Bu, bir servisin veritabaný veya mesaj kuyruðu gibi kritik baðýmlýlýklarýnýn çalýþýp çalýþmadýðýný kontrol eder. Kubernetes gibi orkestrasyon araçlarý, 
+- bu endpoint'i kullanarak saðlýksýz bir servisi otomatik olarak yeniden baþlatabilir. Bu özellik için `AspNetCore.HealthChecks` kütüphanesi kullanýlmýþtýr.
+
+- **Rate Limiting (Ýstek Sýnýrlama):** Sistemin giriþ kapýsý olan `ApiGateway`'e, belirli bir zaman aralýðýnda kabul edeceði maksimum istek sayýsýný kýsýtlayan bir politika eklenmiþtir. 
+- Bu, kötü niyetli saldýrýlara (DDoS) veya hatalý bir istemcinin yaratacaðý aþýrý yüke karþý sistemi korur. Bu özellik, .NET 8 ile gelen yerleþik Rate Limiting middleware'i kullanýlarak kolayca uygulanmýþtýr.

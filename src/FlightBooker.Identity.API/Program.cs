@@ -1,8 +1,10 @@
 using FlightBooker.Identity.API.Data;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+using Polly;
 using Serilog;
 
 Log.Logger = new LoggerConfiguration()
@@ -30,6 +32,20 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 const string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+
+// --- YENÝ EKLENEN KOD BLOKU ---
+// Uygulama baþlangýcýnda veritabaný baðlantýsýný ve migration'larý uygula
+// Polly ile tekrar deneme politikasý ekliyoruz.
+var retryPolicy = Policy
+    .Handle<SqlException>()
+    .WaitAndRetry(5, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
+        (ex, time) =>
+        {
+            // Her tekrar denemede log bas
+            Console.WriteLine($"--> Veritabaný baðlantýsý kurulamadý. {time.TotalSeconds} saniye sonra tekrar denenecek... Hata: {ex.Message}");
+        });
+
+
 
 builder.Services.AddAuthorization();
 
@@ -65,6 +81,19 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+
+// Politikayý kullanarak migration'larý uygula
+retryPolicy.Execute(() =>
+{
+    using (var scope = app.Services.CreateScope())
+    {
+        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        dbContext.Database.Migrate();
+        Console.WriteLine("--> Veritabaný migration'larý baþarýyla uygulandý.");
+    }
+});
+
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -81,4 +110,5 @@ app.UseAuthorization();
 //app.MapIdentityApi<IdentityUser>();
 
 app.MapControllers();
+
 app.Run();

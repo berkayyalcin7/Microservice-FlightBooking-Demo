@@ -29,16 +29,23 @@ builder.Services.AddHostedService<Worker>();
 builder.Services.AddMassTransit(config => {
     config.AddConsumer<BookingCreatedEventConsumer>(); // Consumer'ý tanýt
 
+    //config.UsingRabbitMq((ctx, cfg) => {
+    //    cfg.Host("localhost", "/", h => {
+    //        h.Username("guest");
+    //        h.Password("guest");
+    //    });
+
+    //    // Consumer için kuyruk ayarlarýný yap
+    //    cfg.ReceiveEndpoint("booking-created-event-queue", e => {
+    //        e.ConfigureConsumer<BookingCreatedEventConsumer>(ctx);
+    //    });
+    //});
     config.UsingRabbitMq((ctx, cfg) => {
-        cfg.Host("localhost", "/", h => {
-            h.Username("guest");
-            h.Password("guest");
-        });
+        // appsettings.json dosyasýndaki "MassTransit" connection string'ini kullan
+        cfg.Host(builder.Configuration.GetConnectionString("MassTransit"));
 
         // Consumer için kuyruk ayarlarýný yap
-        cfg.ReceiveEndpoint("booking-created-event-queue", e => {
-            e.ConfigureConsumer<BookingCreatedEventConsumer>(ctx);
-        });
+        cfg.ConfigureEndpoints(ctx);
     });
 });
 
