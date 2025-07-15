@@ -76,4 +76,21 @@ Bu derste, sistemin sadece çalýþýr durumda deðil, ayný zamanda "saðlýklý" ve "sü
 - bu endpoint'i kullanarak saðlýksýz bir servisi otomatik olarak yeniden baþlatabilir. Bu özellik için `AspNetCore.HealthChecks` kütüphanesi kullanýlmýþtýr.
 
 - **Rate Limiting (Ýstek Sýnýrlama):** Sistemin giriþ kapýsý olan `ApiGateway`'e, belirli bir zaman aralýðýnda kabul edeceði maksimum istek sayýsýný kýsýtlayan bir politika eklenmiþtir. 
-- Bu, kötü niyetli saldýrýlara (DDoS) veya hatalý bir istemcinin yaratacaðý aþýrý yüke karþý sistemi korur. Bu özellik, .NET 8 ile gelen yerleþik Rate Limiting middleware'i kullanýlarak kolayca uygulanmýþtýr.
+- Bu, kötü niyetli saldýrýlara (DDoS) veya hatalý bir istemcinin yaratacaðý aþýrý yüke karþý sistemi korur. 
+- Bu özellik, .NET 8 ile gelen yerleþik Rate Limiting middleware'i kullanýlarak kolayca uygulanmýþtýr.
+
+
+## Bölüm 3: Daðýtým ve Konteynerleþtirme (Docker)
+
+Bu bölümde, geliþtirilen çok parçalý mikroservis uygulamasýnýn, "benim makinemde çalýþýyordu" sorununu ortadan kaldýracak þekilde, taþýnabilir ve tutarlý bir yapýda paketlenmesi hedeflenmiþtir.
+
+### Konteynerleþtirme (`Dockerfile` ile)
+- **Konsept:** Her bir mikroservis, kendi baðýmlýlýklarý ve çalýþma ortamýyla birlikte izole bir "konteyner" içerisine paketlenmiþtir. Bu paketleme tarifi, her projenin kendi `Dockerfile`'ý içinde tanýmlanmýþtýr.
+- **Multi-Stage Builds:** Final imaj boyutunu küçültmek ve güvenliði artýrmak için, projeyi derleyen `.NET SDK` imajý ile uygulamayý çalýþtýran `.NET ASP.NET Runtime` imajýnýn ayrýldýðý çok aþamalý build tekniði kullanýlmýþtýr.
+
+### Orkestrasyon (`Docker Compose` ile)
+- **Konsept:** Çok sayýda konteynerden oluþan tüm uygulamanýn (API'ler, veritabaný, mesaj kuyruðu, log sunucusu) tek bir merkezden, tek bir komutla yönetilmesi için **Docker Compose** kullanýlmýþtýr.
+- **Service Discovery:** `docker-compose.yml` içinde tanýmlanan servisler, Docker tarafýndan oluþturulan sanal bir að içinde yer alýr. Bu sayede servisler birbirlerine `localhost:PORT` gibi adresler yerine, `http://booking-api` veya `rabbitmq` gibi kendi servis adlarýyla eriþirler. `appsettings.json` dosyalarý bu yapýya uygun olarak güncellenmiþtir.
+- **Uygulama Baþlangýç Dayanýklýlýðý:** `Identity.API` gibi, baþlangýçta veritabanýna baðýmlý olan servislerin `Program.cs` dosyasýna **Polly** ile bir "Retry" politikasý eklenmiþtir. Bu sayede, veritabaný konteyneri kendisinden daha yavaþ ayaða kalksa bile, uygulama çökmez, sabýrla baðlantýnýn hazýr olmasýný bekler.
+
+Bu son adým ile birlikte, projemiz sadece mimari olarak deðil, ayný zamanda geliþtirme ve daðýtým süreçleri açýsýndan da modern ve profesyonel bir yapýya kavuþmuþtur.
