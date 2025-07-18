@@ -50,3 +50,11 @@ app.MapControllers();
 
 
 app.Run();
+
+// Entegrasyon testinin bunu görmesi için
+namespace FlightBooker.Search.API
+{
+    public partial class Program
+    {
+    }
+}
