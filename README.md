@@ -94,3 +94,20 @@ Bu bölümde, geliþtirilen çok parçalý mikroservis uygulamasýnýn, "benim makinemde
 - **Uygulama Baþlangýç Dayanýklýlýðý:** `Identity.API` gibi, baþlangýçta veritabanýna baðýmlý olan servislerin `Program.cs` dosyasýna **Polly** ile bir "Retry" politikasý eklenmiþtir. Bu sayede, veritabaný konteyneri kendisinden daha yavaþ ayaða kalksa bile, uygulama çökmez, sabýrla baðlantýnýn hazýr olmasýný bekler.
 
 Bu son adým ile birlikte, projemiz sadece mimari olarak deðil, ayný zamanda geliþtirme ve daðýtým süreçleri açýsýndan da modern ve profesyonel bir yapýya kavuþmuþtur.
+
+
+## Bölüm 4: Kalite ve Test Stratejileri
+
+Bu bölümde, geliþtirilen mikroservislerin kalitesini, kararlýlýðýný ve doðruluðunu garanti altýna almak için modern ve katmanlý bir test stratejisi uygulanmýþtýr.
+
+### Unit Testing (Birim Testleri)
+- **Konsept:** Bir servisin içindeki tek bir sýnýfýn veya metodun iþ mantýðýný, veritabaný veya diðer API'ler gibi tüm dýþ baðýmlýlýklardan tamamen izole bir þekilde test etme pratiðidir.
+- **Kullanýlan Teknolojiler:** Test çatýsý olarak **xUnit**, baðýmlýlýklarý taklit etmek (mocking) için **Moq** ve doðrulamalarý daha okunaklý hale getirmek için **FluentAssertions** kütüphaneleri kullanýlmýþtýr.
+
+### API Entegrasyon Testleri
+- **Konsept:** Bir mikroservisin, dýþ baðýmlýlýklar olmadan, kendi içindeki tüm bileþenleriyle (Controller, Middleware, Servisler vb.) bir bütün olarak doðru çalýþýp çalýþmadýðýný test etme yöntemidir.
+- **Kullanýlan Teknoloji:** **`WebApplicationFactory`**, test sýrasýnda her bir API'yi bellekte (in-memory) ayaða kaldýrarak, að baðlantýsý olmadan, doðrudan endpoint'lere gerçek HTTP istekleri atýlmasýný ve cevaplarýn doðrulanmasýný saðlamýþtýr.
+
+### Veritabaný Entegrasyon Testleri
+- **Konsept:** Bir servisin, veritabaný gibi kritik bir dýþ baðýmlýlýkla olan entegrasyonunu, gerçekçi ve izole bir ortamda test etme pratiðidir.
+- **Kullanýlan Teknoloji:** **`Testcontainers`** kütüphanesi kullanýlarak, her bir test çalýþmasý için sýfýrdan, temiz bir **SQL Server Docker konteyneri** otomatik olarak baþlatýlmýþ, testler bu geçici veritabanýna karþý çalýþtýrýlmýþ ve test bittiðinde konteyner otomatik olarak yok edilmiþtir. Bu, her testin tamamen izole ve tekrarlanabilir olmasýný garanti eder.

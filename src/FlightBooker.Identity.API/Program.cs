@@ -112,3 +112,8 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+namespace FlightBooker.Identity.API
+{
+    public partial class Program { }
+}
