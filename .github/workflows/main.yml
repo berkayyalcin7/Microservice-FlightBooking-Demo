@@ -1,0 +1,44 @@
+# Konum: .github/workflows/dotnet-ci.yml
+
+# İş akışının GitHub Actions arayüzünde görünecek adı
+name: .NET CI Pipeline
+
+# Bu iş akışını neyin tetikleyeceğini belirler
+on:
+  # 'main' branch'ine her push yapıldığında çalışır
+  push:
+    branches: [ "master" ]
+  # 'main' branch'ine yönelik her pull request açıldığında veya güncellendiğinde çalışır
+  pull_request:
+    branches: [ "master" ]
+
+# İş akışında çalışacak olan işleri tanımlar
+jobs:
+  # "build-and-test" adında bir iş tanımlıyoruz
+  build-and-test:
+    # Bu işin çalışacağı sanal makinenin işletim sistemini belirtir
+    runs-on: ubuntu-latest
+
+    # Bu işin adımlarını listeler
+    steps:
+    # 1. Adım: Repoyu sanal makineye indirir (checkout)
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    # 2. Adım: .NET 8 SDK'sını kurar
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+
+    # 3. Adım: NuGet paketlerini yükler (restore)
+    - name: Restore dependencies
+      run: dotnet restore
+
+    # 4. Adım: Projeyi derler (build)
+    - name: Build
+      run: dotnet build --no-restore
+
+    # 5. Adım: Tüm test projelerini çalıştırır
+    - name: Test
+      run: dotnet test --no-build --verbosity normal
