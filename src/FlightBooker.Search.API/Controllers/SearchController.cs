@@ -1,4 +1,4 @@
-﻿using FlightBooker.Search.API.Models;
+using FlightBooker.Search.API.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
