@@ -7,10 +7,10 @@ name: .NET CI Pipeline
 on:
   # 'main' branch'ine her push yapıldığında çalışır
   push:
-    branches: [ "main" ]
+    branches: [ "master" ]
   # 'main' branch'ine yönelik her pull request açıldığında veya güncellendiğinde çalışır
   pull_request:
-    branches: [ "main" ]
+    branches: [ "master" ]
 
 # İş akışında çalışacak olan işleri tanımlar
 jobs:
