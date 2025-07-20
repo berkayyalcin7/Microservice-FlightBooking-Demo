@@ -5,7 +5,7 @@ using System.Text.Json;
 
 namespace FlightBooker.Search.API.Tests
 {
-    // API'den dönecek cevabý deserialize edebilmek için DTO'yu burada da tanýmlýyoruz.
+    // API'den dï¿½necek cevabï¿½ deserialize edebilmek iï¿½in DTO'yu burada da tanï¿½mlï¿½yoruz.
     public record FlightDto(Guid Id,
         string Airline,
         string Origin,
@@ -14,45 +14,45 @@ namespace FlightBooker.Search.API.Tests
         DateTime ArrivalTime,
         decimal Price);
 
-    // IClassFixture, test sýnýfýmýz boyunca WebApplicationFactory'nin tek bir örneðini paylaþmamýzý saðlar.
+    // IClassFixture, test sï¿½nï¿½fï¿½mï¿½z boyunca WebApplicationFactory'nin tek bir ï¿½rneï¿½ini paylaï¿½mamï¿½zï¿½ saï¿½lar.
     public class SearchApiIntegrationTests : IClassFixture<WebApplicationFactory<FlightBooker.Search.API.Program>>
     {
         private readonly HttpClient _client;
 
         public SearchApiIntegrationTests(WebApplicationFactory<FlightBooker.Search.API.Program> factory)
         {
-            // Test için kullanýlacak HttpClient'ý fabrika üzerinden oluþturuyoruz.
-            // Bu istemci, istekleri aða çýkmadan doðrudan bellek içi sunucuya gönderir.
+            // Test iï¿½in kullanï¿½lacak HttpClient'ï¿½ fabrika ï¿½zerinden oluï¿½turuyoruz.
+            // Bu istemci, istekleri aï¿½a ï¿½ï¿½kmadan doï¿½rudan bellek iï¿½i sunucuya gï¿½nderir.
             _client = factory.CreateClient();
         }
 
         [Fact]
         public async Task GetAvailableFlights_Should_ReturnSuccessStatusCode_And_FlightList()
         {
-            // --- ARRANGE (Hazýrlýk) ---
-            // Bu testte hazýrlýk basit, sadece istemciyi oluþturmak yeterli.
+            // --- ARRANGE (Hazï¿½rlï¿½k) ---
+            // Bu testte hazï¿½rlï¿½k basit, sadece istemciyi oluï¿½turmak yeterli.
 
             // --- ACT (Eylem) ---
-            // /api/search endpoint'ine gerçek bir GET isteði atýyoruz.
+            // /api/search endpoint'ine gerï¿½ek bir GET isteï¿½i atï¿½yoruz.
             var response = await _client.GetAsync("/api/search");
 
 
-            // --- ASSERT (Doðrulama) ---
+            // --- ASSERT (Doï¿½rulama) ---
 
-            // 1. Dönen HTTP durum kodunun baþarýlý (200 OK) olduðunu doðrula.
+            // 1. Dï¿½nen HTTP durum kodunun baï¿½arï¿½lï¿½ (200 OK) olduï¿½unu doï¿½rula.
             response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-            // 2. Dönen cevabýn içeriðini oku ve bir listeye dönüþtür.
+            // 2. Dï¿½nen cevabï¿½n iï¿½eriï¿½ini oku ve bir listeye dï¿½nï¿½ï¿½tï¿½r.
             var content = await response.Content.ReadAsStringAsync();
             var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
             var flights = JsonSerializer.Deserialize<List<FlightDto>>(content, options);
 
-            // 3. Dönen listenin boþ olmadýðýný ve içinde en az bir eleman olduðunu doðrula.
+            // 3. Dï¿½nen listenin boï¿½ olmadï¿½ï¿½ï¿½nï¿½ ve iï¿½inde en az bir eleman olduï¿½unu doï¿½rula.
             flights.Should().NotBeNull();
             flights.Should().HaveCountGreaterThan(0);
 
-            // 4. Listenin içindeki bir uçaðýn beklenen bir deðere sahip olduðunu kontrol et.
-            flights.Should().Contain(f => f.Airline == "Türk Hava Yollarý");
+            // 4. Listenin iï¿½indeki bir uï¿½aï¿½ï¿½n beklenen bir deï¿½ere sahip olduï¿½unu kontrol et.
+            flights.Should().Contain(f => f.Airline == "TÃ¼rk Hava YollarÄ±");
         }
     }
 }
